@@ -1,0 +1,7 @@
+# LLM y API
+groq==0.11.0
+python-dotenv==1.0.0
+
+# Validación y configuración
+pydantic==2.8.2
+pydantic-settings==2.3.4
