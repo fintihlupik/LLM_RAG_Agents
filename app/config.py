@@ -20,6 +20,11 @@ class Settings(BaseSettings):
     temperature: float = Field(default=0.7, ge=0.0, le=2.0, alias="TEMPERATURE") # 0.0 >= temp <= 2.0
     max_tokens: int = Field(default=2000, gt=0, alias="MAX_TOKENS") # > 0
     
+    # Configuración de la API
+    app_name: str = Field(default="Asistente Financiero", alias="APP_NAME")
+    app_version: str = Field(default="0.1.0", alias="APP_VERSION")
+    upload_dir: str = Field(default="./uploads/raw", alias="UPLOAD_DIR")
+    
     class Config: # En Pydantic, Config es una clase interna opcional que permite personalizar el comportamiento del modelo, dentro del modelo para que afecte solo esa clase.
         # Le dice a Pydantic que busque variables en el archivo .env
         env_file = ".env"

@@ -1,7 +1,14 @@
 # LLM y API
-groq==0.11.0
+groq==0.13.0
 python-dotenv==1.0.0
 
 # Validación y configuración
 pydantic==2.8.2
 pydantic-settings==2.3.4
+
+# Web Framework
+fastapi==0.115.0
+uvicorn[standard]==0.32.0
+
+# Manejo de archivos
+python-multipart==0.0.12
