@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Dict, List
 
 from fastapi import UploadFile, HTTPException
+import pdfplumber
 
 from app.config import settings
 from app.utils.logger import get_logger
@@ -64,9 +65,15 @@ class DocumentService:
         
         file_type = self.ALLOWED_EXTENSIONS[file_ext]
         
-        # Generar nombre único
+        # Generar nombre único: nombre_original_timestamp.ext
+        # Ejemplo: aapl-20250628_20251114_132722.pdf
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        filename = f"{timestamp}_{file.filename}"
+        
+        # Obtener nombre sin extensión
+        original_name = Path(file.filename).stem  # "aapl-20250628" si filename es "aapl-20250628.pdf"
+        
+        # Construir nombre: nombre_timestamp.extension
+        filename = f"{original_name}_{timestamp}{file_ext}"
         file_path = self.upload_dir / filename
         
         # Guardar archivo
@@ -160,6 +167,103 @@ class DocumentService:
                 status_code=500,
                 detail=f"Error al listar documentos: {str(e)}"
             )
+    
+    def extract_text_from_pdf(self, filename: str) -> str:
+        """
+        Extrae el texto completo de un PDF usando pdfplumber.
+        
+        pdfplumber es superior a pypdf porque:
+        - Extrae texto con mejor precisión
+        - Detecta y preserva tablas
+        - Mantiene estructura y formato
+        - Ideal para informes financieros con datos tabulares
+        
+        Args:
+            filename: Nombre del archivo PDF en uploads/raw
+        
+        Returns:
+            Texto extraído del PDF con estructura preservada
+        
+        Raises:
+            HTTPException: Si el archivo no existe o no se puede leer
+        """
+        file_path = self.upload_dir / filename
+        
+        # Verificar que existe
+        if not file_path.exists():
+            raise HTTPException(
+                status_code=404,
+                detail=f"Archivo no encontrado: {filename}"
+            )
+        
+        # Verificar que es PDF
+        if file_path.suffix.lower() != '.pdf':
+            raise HTTPException(
+                status_code=400,
+                detail=f"El archivo no es un PDF: {filename}"
+            )
+        
+        try:
+            logger.info(f"Extrayendo texto de: {filename}")
+            
+            text_parts = []
+            
+            # Abrir PDF con pdfplumber (context manager - cierra automáticamente)
+            with pdfplumber.open(file_path) as pdf:
+                total_pages = len(pdf.pages)
+                logger.info(f"PDF tiene {total_pages} páginas")
+                
+                for page_num, page in enumerate(pdf.pages, start=1):
+                    # Extraer texto de la página
+                    text = page.extract_text()
+                    
+                    if text and text.strip():
+                        text_parts.append(f"--- Página {page_num} ---\n{text}")
+                        logger.debug(f"Página {page_num}: {len(text)} caracteres")
+                    
+                    # Extraer tablas si existen
+                    tables = page.extract_tables()
+                    if tables:
+                        logger.debug(f"Página {page_num}: {len(tables)} tabla(s) detectada(s)")
+                        for table_num, table in enumerate(tables, start=1):
+                            # Convertir tabla a texto formateado
+                            table_text = self._format_table(table)
+                            text_parts.append(f"\n[TABLA {table_num}]\n{table_text}")
+            
+            # Unir todo el texto
+            full_text = "\n\n".join(text_parts)
+            
+            logger.info(f"✓ Texto extraído: {len(full_text)} caracteres de {total_pages} páginas")
+            
+            return full_text
+            
+        except Exception as e:
+            logger.error(f"Error al extraer texto del PDF: {str(e)}")
+            raise HTTPException(
+                status_code=500,
+                detail=f"Error al procesar el PDF: {str(e)}"
+            )
+    
+    def _format_table(self, table: List[List]) -> str:
+        """
+        Formatea una tabla extraída como texto legible.
+        
+        Args:
+            table: Tabla como lista de listas (filas y columnas)
+        
+        Returns:
+            Tabla formateada como texto
+        """
+        if not table:
+            return ""
+        
+        # Convertir None a string vacío
+        formatted_rows = []
+        for row in table:
+            formatted_row = [str(cell) if cell is not None else "" for cell in row]
+            formatted_rows.append(" | ".join(formatted_row))
+        
+        return "\n".join(formatted_rows)
 
 
 # Instancia única del servicio (Singleton pattern)

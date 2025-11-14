@@ -12,3 +12,6 @@ uvicorn[standard]==0.32.0
 
 # Manejo de archivos
 python-multipart==0.0.12
+
+# Procesamiento de PDFs
+pdfplumber==0.11.4
