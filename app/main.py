@@ -11,7 +11,7 @@ from app.config import settings
 from app.utils.logger import setup_logger, get_logger
 from app.core.llm.client import groq_client
 from app.api.middleware import LoggingMiddleware, ErrorHandlingMiddleware
-from app.api.routes import health_router, documents_router
+from app.api.routes import health_router, documents_router, analysis_router
 
 # Configurar logger principal
 setup_logger("app", level=20)  # 20 = INFO
@@ -66,6 +66,7 @@ app.add_middleware(
 # Registrar routers
 app.include_router(health_router)
 app.include_router(documents_router)
+app.include_router(analysis_router)
 
 
 # Para ejecutar directamente con python (desarrollo)
