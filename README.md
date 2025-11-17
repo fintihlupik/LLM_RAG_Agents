@@ -1,4 +1,4 @@
-# 🤖 Asistente Financiero con LLM + RAG + Agentes
+# Asistente Financiero con LLM + RAG + Agentes
 
 API REST para análisis inteligente de informes financieros utilizando modelos de lenguaje (LLM), Retrieval-Augmented Generation (RAG) y sistemas multi-agente.
 
@@ -8,20 +8,20 @@ API REST para análisis inteligente de informes financieros utilizando modelos d
 
 ### ✅ Implementado (Fase 1: Fundación)
 
-#### **🏗️ Arquitectura Base**
+#### **Arquitectura Base**
 - ✅ FastAPI configurado con estructura modular
 - ✅ Sistema de logging centralizado
 - ✅ Gestión de configuración con Pydantic
 - ✅ Middlewares para logging de requests y manejo de errores
 - ✅ Documentación automática (Swagger/OpenAPI)
 
-#### **🤖 Integración LLM**
+#### **Integración LLM**
 - ✅ Cliente Groq integrado y funcional
 - ✅ Modelo: `llama-3.3-70b-versatile`
 - ✅ Verificación de conexión en startup
 - ✅ Sistema preparado para múltiples modelos
 
-#### **📄 Gestión de Documentos**
+#### **Gestión de Documentos**
 - ✅ API para subir documentos financieros
 - ✅ Soporte multi-formato:
   - PDF (informes, balances)
@@ -31,7 +31,7 @@ API REST para análisis inteligente de informes financieros utilizando modelos d
 - ✅ Listado de documentos con metadata
 - ✅ Almacenamiento organizado en `uploads/raw/`
 
-#### **🔌 Endpoints Disponibles**
+#### **Endpoints Disponibles**
 | Endpoint | Método | Descripción |
 |----------|--------|-------------|
 | `/` | GET | Información de la API |
@@ -42,7 +42,7 @@ API REST para análisis inteligente de informes financieros utilizando modelos d
 
 ---
 
-## 🏗️ Arquitectura del Proyecto
+## Arquitectura del Proyecto
 
 ```
 app/
@@ -77,7 +77,7 @@ uploads/
 
 ---
 
-## 🚀 Instalación y Uso
+## Instalación y Uso
 
 ### **1️⃣ Requisitos Previos**
 - Python 3.10+
@@ -129,7 +129,7 @@ La API estará disponible en: **http://localhost:8000**
 
 ---
 
-## 🧪 Probar la API
+## Probar la API
 
 ### **Usando Swagger UI**
 1. Abre http://localhost:8000/docs
@@ -150,7 +150,7 @@ curl http://localhost:8000/documents/
 
 ---
 
-## 🛠️ Stack Tecnológico
+## Stack Tecnológico
 
 | Componente | Tecnología | Propósito |
 |------------|-----------|-----------|
@@ -162,7 +162,7 @@ curl http://localhost:8000/documents/
 
 ---
 
-## 📅 Roadmap
+## Roadmap
 
 ### **Fase 1: Fundación** ✅ COMPLETADA
 - [x] Setup inicial del proyecto
@@ -170,9 +170,9 @@ curl http://localhost:8000/documents/
 - [x] API para subir documentos
 - [x] Arquitectura modular
 
-### **Fase 2: Procesamiento de Documentos** 🚧 PRÓXIMAMENTE
-- [ ] Extracción de texto de PDFs
-- [ ] Parsing de Excel (hojas, tablas)
+### **Fase 2: Procesamiento de Documentos** 🚧 EN PROCESO
+- [X] Extracción de texto de PDFs
+- [ ] Resumen con LLM solo y con RAG
 - [ ] Chunking inteligente de documentos
 - [ ] Generación de embeddings
 
