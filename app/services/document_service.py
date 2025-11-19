@@ -43,13 +43,15 @@ class DocumentService:
     
     async def upload_document(self, file: UploadFile) -> Dict:
         """
-        Guarda un documento subido.
+        Guarda un documento subido y genera su doc_id único.
+        
+        Responsabilidad única (SRP): manejo completo del ciclo de vida del upload.
         
         Args:
             file: Archivo subido por FastAPI
         
         Returns:
-            Información del archivo guardado
+            Info del archivo guardado + doc_id para tracking
         
         Raises:
             HTTPException: Si el formato no es válido o hay error al guardar
@@ -68,13 +70,12 @@ class DocumentService:
         # Generar nombre único: nombre_original_timestamp.ext
         # Ejemplo: aapl-20250628_20251114_132722.pdf
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        
-        # Obtener nombre sin extensión
-        original_name = Path(file.filename).stem  # "aapl-20250628" si filename es "aapl-20250628.pdf"
-        
-        # Construir nombre: nombre_timestamp.extension
+        original_name = Path(file.filename).stem
         filename = f"{original_name}_{timestamp}{file_ext}"
         file_path = self.upload_dir / filename
+        
+        # Generar doc_id (SRP: service genera identificadores, no el controller)
+        doc_id = self._generate_doc_id(filename)
         
         # Guardar archivo
         try:
@@ -85,10 +86,11 @@ class DocumentService:
                 f.write(content)
             
             file_size = len(content)
-            logger.info(f"✓ Archivo guardado: {file_size} bytes")
+            logger.info(f"✓ Archivo guardado: {file_size} bytes, doc_id={doc_id}")
             
             return {
                 "mensaje": "Archivo subido exitosamente",
+                "doc_id": doc_id,
                 "nombre_original": file.filename,
                 "nombre_guardado": filename,
                 "tipo": file_type,
@@ -104,6 +106,23 @@ class DocumentService:
                 status_code=500,
                 detail=f"Error al guardar el archivo: {str(e)}"
             )
+    
+    def _generate_doc_id(self, filename: str) -> str:
+        """
+        Genera un ID único para un documento.
+        
+        Formato: {nombre_sin_extension}_{timestamp_millis}
+        Ejemplo: aapl-20250628_20251119153045
+        
+        Args:
+            filename: Nombre del archivo guardado
+        
+        Returns:
+            doc_id único
+        """
+        stem = Path(filename).stem
+        timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+        return f"{stem}_{timestamp}"
     
     def list_documents(self) -> Dict:
         """
